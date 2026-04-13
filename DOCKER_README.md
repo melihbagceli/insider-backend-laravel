@@ -48,16 +48,17 @@ Once running, the API will be available at:
 1. Connect your GitHub repository to Railway
 2. Create a new project in Railway
 3. Ensure these environment variables are set:
-   ```
-   PORT=8080
-   ```
+    ```
+    PORT=8080
+    ```
 4. Railway will automatically:
-   - Detect Dockerfile
-   - Build the image
-   - Deploy the application
-   - Assign a unique domain (e.g., `yourdomain.railway.app`)
+    - Detect Dockerfile
+    - Build the image
+    - Deploy the application
+    - Assign a unique domain (e.g., `yourdomain.railway.app`)
 
 ### Railway PORT Configuration
+
 The Dockerfile supports Railway's dynamic PORT assignment. The CMD automatically updates Apache configuration to use the PORT variable.
 
 ## Development

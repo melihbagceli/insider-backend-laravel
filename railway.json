@@ -1,9 +1,9 @@
 {
-  "build": {
-    "builder": "dockerfile"
-  },
-  "deploy": {
-    "restartPolicyType": "no",
-    "restartPolicyMaxRetries": 0
-  }
+    "build": {
+        "builder": "dockerfile"
+    },
+    "deploy": {
+        "restartPolicyType": "no",
+        "restartPolicyMaxRetries": 0
+    }
 }
