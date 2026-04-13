@@ -1,25 +1,26 @@
 FROM php:8.3-fpm-alpine
 
-# Install system dependencies
-RUN apk add --no-cache \
+# Update package manager and install system dependencies
+RUN apk update && apk add --no-cache \
     git \
     curl \
     libpng-dev \
-    libonig-dev \
+    oniguruma-dev \
     libxml2-dev \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    sqlite-dev
 
-# Clear cache
+# Install Redis extension
 RUN apk add --no-cache pcre-dev $PHPIZE_DEPS \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del pcre-dev $PHPIZE_DEPS
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_sqlite pdo_mysql mbstring exif pcntl bcmath gd xml
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
