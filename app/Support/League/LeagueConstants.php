@@ -8,5 +8,5 @@ class LeagueConstants
 
     public const MAX_TOTAL_GOAL_NUMBER = 10;
 
-    public const MONTE_CARLO_MAX_ITERATION = 10000;
+    public const MONTE_CARLO_MAX_ITERATION = 1000;
 }

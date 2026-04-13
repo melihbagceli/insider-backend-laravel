@@ -20,14 +20,14 @@ class MatchController extends Controller
         $teamCount = count($this->teamService->getTeams());
 
         if ($teamCount < 4) {
-            return response()->json('En az 4 takım gereklidir.', 400);
+            return response()->json('En az 4 takım gereklidir.', 400, [], JSON_UNESCAPED_UNICODE);
         }
 
         if ($teamCount % 2 !== 0) {
-            return response()->json('Takım sayısı çift olmalıdır.', 400);
+            return response()->json('Takım sayısı çift olmalıdır.', 400, [], JSON_UNESCAPED_UNICODE);
         }
 
-        return response()->json($this->matchService->generateLeagueMatches());
+        return response()->json($this->matchService->generateLeagueMatches(), 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function playCurrentWeek(): JsonResponse
@@ -36,25 +36,25 @@ class MatchController extends Controller
         $currentWeek = $this->matchService->getCurrentWeek();
 
         if ($currentWeek >= $totalWeek) {
-            return response()->json('Tüm haftalar oynanmıştır.', 400);
+            return response()->json('Tüm haftalar oynanmıştır.', 400, [], JSON_UNESCAPED_UNICODE);
         }
 
         $weekMatches = $this->matchService->playCurrentWeek();
 
         if ($weekMatches === null) {
-            return response()->json('Hafta oynanamadı.', 400);
+            return response()->json('Hafta oynanamadı.', 400, [], JSON_UNESCAPED_UNICODE);
         }
 
         return response()->json([
             'matches' => $weekMatches,
             'week' => $currentWeek,
             'totalWeek' => $totalWeek,
-        ]);
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function getStandings(): JsonResponse
     {
-        return response()->json($this->matchService->getStandings());
+        return response()->json($this->matchService->getStandings(), 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function playAllWeeks(): JsonResponse
@@ -63,19 +63,20 @@ class MatchController extends Controller
         $currentWeek = $this->matchService->getCurrentWeek();
 
         if ($currentWeek >= $totalWeek) {
-            return response()->json('Tüm haftalar zaten oynanmıştır.', 400);
+            return response()->json('Tüm haftalar zaten oynanmıştır.', 400, [], JSON_UNESCAPED_UNICODE);
         }
 
         return response()->json([
             'standings' => $this->matchService->playAllWeeks(),
             'totalWeek' => $totalWeek,
-        ]);
+        ], 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function getChampionshipPredictions(): JsonResponse
     {
         return response()->json(
-            $this->matchService->calculateChampionshipPredictability($this->matchService->getCurrentWeek())
+            $this->matchService->calculateChampionshipPredictability($this->matchService->getCurrentWeek()),
+            200, [], JSON_UNESCAPED_UNICODE
         );
     }
 
@@ -90,9 +91,9 @@ class MatchController extends Controller
 
             $this->matchService->updateMatchResult($week, $homeTeam, $otherTeam, $homeGoals, $otherGoals);
 
-            return response()->json($this->matchService->getStandings());
+            return response()->json($this->matchService->getStandings(), 200, [], JSON_UNESCAPED_UNICODE);
         } catch (\Throwable $exception) {
-            return response()->json('Maç sonucu güncellenemedi: '.$exception->getMessage(), 400);
+            return response()->json('Maç sonucu güncellenemedi: '.$exception->getMessage(), 400, [], JSON_UNESCAPED_UNICODE);
         }
     }
 }

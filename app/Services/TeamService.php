@@ -97,7 +97,7 @@ class TeamService
         $this->stateRepository->resetState();
     }
 
-    public function addMissingDefaultTeams(): int
+    public function loadDefaultTeams(): int
     {
         $defaultTeams = [
             new TeamData('Liverpool', 25),

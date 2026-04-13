@@ -2,38 +2,25 @@
 
 namespace App\Support\League;
 
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 
 class LeagueStateRepository
 {
+    private const CACHE_KEY = 'league_state';
+
     public function getState(): array
     {
-        $path = $this->path();
-
-        if (! File::exists($path)) {
-            $this->saveState($this->defaultState());
-        }
-
-        $state = json_decode((string) File::get($path), true);
-
-        return is_array($state) ? $state : $this->defaultState();
+        return Cache::get(self::CACHE_KEY, $this->defaultState());
     }
 
     public function saveState(array $state): void
     {
-        $path = $this->path();
-        File::ensureDirectoryExists(dirname($path));
-        File::put($path, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        Cache::forever(self::CACHE_KEY, $state);
     }
 
     public function resetState(): void
     {
-        $this->saveState($this->defaultState());
-    }
-
-    private function path(): string
-    {
-        return config('league.state_path');
+        Cache::forget(self::CACHE_KEY);
     }
 
     private function defaultState(): array

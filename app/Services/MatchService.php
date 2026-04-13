@@ -223,7 +223,7 @@ class MatchService
         $winCount = [];
 
         for ($i = 0; $i < LeagueConstants::MONTE_CARLO_MAX_ITERATION; $i++) {
-            $simulatedMatchResults = json_decode(json_encode($currentMatchResults), true);
+            $simulatedMatchResults = $currentMatchResults; // Simple array copy instead of json encode/decode
             $simulatedWeek = $fromWeek;
 
             while ($simulatedWeek < $totalWeek) {
