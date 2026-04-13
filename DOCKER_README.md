@@ -27,13 +27,7 @@ docker-compose down
 
 ## Environment
 
-The application runs with:
-
-- SQLite database (file-based)
-- File cache
-- Production settings
-- Apache with mod_rewrite enabled
-- Dynamic PORT support for Railway
+The application runs with file cache, production settings, Apache with mod_rewrite enabled, and dynamic PORT support for Railway.
 
 ## API Endpoints
 
