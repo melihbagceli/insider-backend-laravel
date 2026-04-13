@@ -17,15 +17,18 @@ if ! grep -q "APP_KEY=base64" .env; then
   php artisan key:generate
 fi
 
-# Migration
-php artisan migrate --force || true
+# ❌ DB kullanmıyorsun → migrate KALDIRILDI
 
-# Cache
+# Cache temiz (çok önemli)
+php artisan config:clear || true
+php artisan cache:clear || true
+
+# Cache build
 php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
 
+# Permission fix
 chown -R www-data:www-data /var/www/html
+chmod -R 777 storage bootstrap/cache
 
 echo "✅ Laravel hazır!"
 

@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN a2enmod rewrite
 
+# Apache warning fix
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -19,6 +22,14 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 
 # proje
 COPY . .
+
+# 🔥 STORAGE FIX (EN KRİTİK)
+RUN mkdir -p storage/app \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && echo '{"teams":[],"matchResults":[],"currentWeek":0}' > storage/app/state.json \
+    && chmod -R 777 storage bootstrap/cache
 
 # apache public root
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
