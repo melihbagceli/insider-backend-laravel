@@ -1,4 +1,4 @@
-# Laravel Backend Docker Deployment
+# Laravel Backend Docker Deployment (Railway Ready)
 
 ## Quick Start
 
@@ -18,13 +18,12 @@ docker-compose down
 
 ## Services
 
-- **laravel-app**: PHP 8.3 FPM with Laravel application
-- **nginx**: Web server proxying to PHP-FPM
+- **laravel-app**: PHP 8.3 with Apache2 (all-in-one solution)
 
 ## Ports
 
-- **8000**: Nginx web server (main application)
-- **9000**: PHP-FPM (internal, not exposed)
+- **8000**: Web server (local development) / **dynamically assigned on Railway**
+- Railway automatically sets `PORT` environment variable
 
 ## Environment
 
@@ -33,6 +32,8 @@ The application runs with:
 - SQLite database (file-based)
 - File cache
 - Production settings
+- Apache with mod_rewrite enabled
+- Dynamic PORT support for Railway
 
 ## API Endpoints
 
@@ -42,14 +43,32 @@ Once running, the API will be available at:
 - `http://localhost:8000/api/fixtures`
 - etc.
 
+## Railway Deployment
+
+1. Connect your GitHub repository to Railway
+2. Create a new project in Railway
+3. Ensure these environment variables are set:
+   ```
+   PORT=8080
+   ```
+4. Railway will automatically:
+   - Detect Dockerfile
+   - Build the image
+   - Deploy the application
+   - Assign a unique domain (e.g., `yourdomain.railway.app`)
+
+### Railway PORT Configuration
+The Dockerfile supports Railway's dynamic PORT assignment. The CMD automatically updates Apache configuration to use the PORT variable.
+
 ## Development
 
-For development with hot reload:
+For local development with hot reload using docker-compose:
 
 ```bash
-# Run in development mode
-docker-compose -f docker-compose.dev.yml up --build
+docker-compose up --build
 ```
+
+Access the application at `http://localhost:8000`
 
 ## Production Deployment
 
