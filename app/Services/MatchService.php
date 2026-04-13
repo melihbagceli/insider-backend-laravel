@@ -110,7 +110,11 @@ class MatchService
 
     public function getMatchesUntilWeek(int $week): array
     {
-        $matchResults = $this->getMatchResults();
+        return $this->getMatchesUntilWeekFromResults($this->getMatchResults(), $week);
+    }
+
+    private function getMatchesUntilWeekFromResults(array $matchResults, int $week): array
+    {
         $lists = [];
 
         for ($i = 0; $i < $week; $i++) {
@@ -175,9 +179,10 @@ class MatchService
         $currentStats = $this->getMatchesUntilWeek($fromWeek);
         $currentPoints = $this->sumPoints($currentStats);
         $remainingMatchesCount = [];
+        $currentMatchResults = $this->getMatchResults();
 
         for ($week = $fromWeek; $week < $totalWeek; $week++) {
-            $futureMatches = $this->getMatchResults()[(string) $week] ?? [];
+            $futureMatches = $currentMatchResults[(string) $week] ?? [];
 
             foreach ($futureMatches as $match) {
                 $matchResult = MatchResultData::fromArray($match);
@@ -215,28 +220,23 @@ class MatchService
             }
         }
 
-        $originalState = $this->stateRepository->getState();
-        $leftMatchCount = $totalWeek - $fromWeek;
         $winCount = [];
 
         for ($i = 0; $i < LeagueConstants::MONTE_CARLO_MAX_ITERATION; $i++) {
-            $simulatedState = json_decode(json_encode($originalState), true);
-            $simulatedState['currentWeek'] = $fromWeek;
-            $this->stateRepository->saveState($simulatedState);
+            $simulatedMatchResults = json_decode(json_encode($currentMatchResults), true);
+            $simulatedWeek = $fromWeek;
 
-            for ($j = 0; $j < $leftMatchCount; $j++) {
-                $this->playCurrentWeek();
+            while ($simulatedWeek < $totalWeek) {
+                $this->playCurrentWeekInState($simulatedMatchResults, $simulatedWeek, $totalWeek);
             }
 
-            $totalList = $this->sumPoints($this->getMatchesUntilWeek($this->teamService->getTotalWeek()));
+            $totalList = $this->sumPoints($this->getMatchesUntilWeekFromResults($simulatedMatchResults, $totalWeek));
             $winner = $this->findLeagueWinner($totalList);
 
             if ($winner !== null) {
                 $winCount[$winner] = ($winCount[$winner] ?? 0) + 1;
             }
         }
-
-        $this->stateRepository->saveState($originalState);
 
         $probability = [];
 
@@ -245,6 +245,37 @@ class MatchService
         }
 
         return $probability;
+    }
+
+    private function playCurrentWeekInState(array &$matchResults, int &$currentWeek, int $totalWeek): void
+    {
+        if ($currentWeek >= $totalWeek) {
+            return;
+        }
+
+        $weekMatches = $matchResults[(string) $currentWeek] ?? null;
+
+        if (! is_array($weekMatches)) {
+            $currentWeek++;
+
+            return;
+        }
+
+        foreach ($weekMatches as $index => $match) {
+            $matchResult = MatchResultData::fromArray($match);
+            [$homeGoals, $awayGoals] = self::simulateMatchScore(
+                $matchResult->homeTeam->strength,
+                $matchResult->otherTeam->strength,
+            );
+
+            $matchResult->homeGoalCount = $homeGoals;
+            $matchResult->otherTeamGoalCount = $awayGoals;
+            MatchMath::calculateMatchResultOfTeams($matchResult);
+            $weekMatches[$index] = $matchResult->toArray();
+        }
+
+        $matchResults[(string) $currentWeek] = $weekMatches;
+        $currentWeek++;
     }
 
     public function getStandings(): array
