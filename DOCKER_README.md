@@ -29,6 +29,7 @@ docker-compose down
 ## Environment
 
 The application runs with:
+
 - SQLite database (file-based)
 - File cache
 - Production settings
@@ -36,6 +37,7 @@ The application runs with:
 ## API Endpoints
 
 Once running, the API will be available at:
+
 - `http://localhost:8000/api/teams`
 - `http://localhost:8000/api/fixtures`
 - etc.
